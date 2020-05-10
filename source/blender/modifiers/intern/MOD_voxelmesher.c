@@ -917,7 +917,7 @@ static void transfer_mblur_data(VoxelMesherModifierData *vmd,
   }
 }
 
-static Mesh *applyModifier(ModifierData *md, const ModifierEvalContext *ctx, Mesh *mesh)
+static Mesh *modifyMesh(ModifierData *md, const ModifierEvalContext *ctx, Mesh *mesh)
 {
   VoxelMesherModifierData *vmd = (VoxelMesherModifierData *)md;
   Mesh *result = NULL;
@@ -1223,7 +1223,10 @@ ModifierTypeInfo modifierType_VoxelMesher = {
     /* deformMatrices */ NULL,
     /* deformVertsEM */ NULL,
     /* deformMatricesEM */ NULL,
-    /* applyModifier */ applyModifier,
+    /* modifyMesh */ modifyMesh,
+    /* modifyHair */ NULL,
+    /* modifyPointCloud */ NULL,
+    /* modifyVolume */ NULL,
 
     /* initData */ initData,
     /* requiredDataMask */ NULL,
