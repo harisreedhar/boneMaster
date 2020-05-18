@@ -213,7 +213,7 @@ static ParticleSystem *get_psys(VoxelMesherModifierData *vmd,
         else
           required_mode = eModifierMode_Realtime;
 
-        if (modifier_isEnabled(scene, ob_md, required_mode)) {
+        if (BKE_modifier_is_enabled(scene, ob_md, required_mode)) {
           return psys;
         }
 
@@ -928,7 +928,7 @@ static Mesh *modifyMesh(ModifierData *md, const ModifierEvalContext *ctx, Mesh *
     struct OpenVDBLevelSet *level_set = NULL;
 
     Object *ob_orig = DEG_get_original_object(ctx->object);
-    VoxelMesherModifierData *vmd_orig = (VoxelMesherModifierData *)modifiers_findByName(ob_orig,
+    VoxelMesherModifierData *vmd_orig = (VoxelMesherModifierData *)BKE_modifiers_findny_name(ob_orig,
                                                                                         md->name);
 
     if (((vmd->flag & MOD_VOXELMESHER_LIVE_REMESH) == 0)) {
@@ -1174,7 +1174,7 @@ static void copyData(const ModifierData *md_src, ModifierData *md_dst, const int
   Mesh *me_src = vmd_src->mesh_cached;
   struct OpenVDBLevelSet *lvl_src = vmd_src->levelset_cached;
 
-  modifier_copyData_generic(md_src, md_dst, flag);
+  BKE_modifier_copydata_generic(md_src, md_dst, flag);
   BLI_duplicatelist(&vmd_dst->csg_operands, &vmd_src->csg_operands);
 
   if (me_src) {
