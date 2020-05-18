@@ -294,6 +294,13 @@ const EnumPropertyItem rna_enum_object_modifier_type_items[] = {
      "Spawn particles from the shape"},
     {eModifierType_Softbody, "SOFT_BODY", ICON_MOD_SOFT, "Soft Body", ""},
     {eModifierType_Surface, "SURFACE", ICON_MODIFIER, "Surface", ""},
+#ifdef WITH_NEW_SIMULATION_TYPE
+    {eModifierType_Simulation,
+     "SIMULATION",
+     ICON_PHYSICS,
+     "Simulation",
+     ""}, /* TODO: Use correct icon. */
+#endif
     {0, NULL, 0, NULL, NULL},
 };
 
@@ -729,6 +736,8 @@ static StructRNA *rna_Modifier_refine(struct PointerRNA *ptr)
       return &RNA_SurfaceDeformModifier;
     case eModifierType_WeightedNormal:
       return &RNA_WeightedNormalModifier;
+    case eModifierType_Simulation:
+      return &RNA_SimulationModifier;
     case eModifierType_VoxelMesher:
       return &RNA_VoxelMesherModifier;
     /* Default */
@@ -756,7 +765,7 @@ static void rna_Modifier_name_set(PointerRNA *ptr, const char *value)
   /* make sure the name is truly unique */
   if (ptr->owner_id) {
     Object *ob = (Object *)ptr->owner_id;
-    modifier_unique_name(&ob->modifiers, md);
+    BKE_modifier_unique_name(&ob->modifiers, md);
   }
 
   /* fix all the animation data which may link to this */
@@ -772,37 +781,16 @@ static char *rna_Modifier_path(PointerRNA *ptr)
   return BLI_sprintfN("modifiers[\"%s\"]", name_esc);
 }
 
-static bool rna_Modifier_update_check(PointerRNA *ptr)
-{
-  ModifierData *md = ptr->data;
-  bool do_update = true;
-
-  if (md->type == eModifierType_VoxelMesher) {
-    VoxelMesherModifierData *vmd = (VoxelMesherModifierData *)md;
-    if (vmd->mode == MOD_VOXELMESHER_VOXEL) {
-      if (((vmd->flag & MOD_VOXELMESHER_LIVE_REMESH) == 0) && vmd->mesh_cached) {
-        do_update = false;
-      }
-    }
-  }
-
-  return do_update;
-}
-
 static void rna_Modifier_update(Main *UNUSED(bmain), Scene *UNUSED(scene), PointerRNA *ptr)
 {
-  if (rna_Modifier_update_check(ptr)) {
-    DEG_id_tag_update(ptr->owner_id, ID_RECALC_GEOMETRY);
-    WM_main_add_notifier(NC_OBJECT | ND_MODIFIER, ptr->owner_id);
-  }
+  DEG_id_tag_update(ptr->owner_id, ID_RECALC_GEOMETRY);
+  WM_main_add_notifier(NC_OBJECT | ND_MODIFIER, ptr->owner_id);
 }
 
 static void rna_Modifier_dependency_update(Main *bmain, Scene *scene, PointerRNA *ptr)
 {
-  if (rna_Modifier_update_check(ptr)) {
-    rna_Modifier_update(bmain, scene, ptr);
-    DEG_relations_tag_update(bmain);
-  }
+  rna_Modifier_update(bmain, scene, ptr);
+  DEG_relations_tag_update(bmain);
 }
 
 /* Vertex Groups */
@@ -2179,6 +2167,12 @@ static void rna_def_modifier_mirror(BlenderRNA *brna)
   RNA_def_property_boolean_sdna(prop, NULL, "flag", MOD_MIR_MIRROR_V);
   RNA_def_property_ui_text(
       prop, "Mirror V", "Mirror the V texture coordinate around the flip offset point");
+  RNA_def_property_update(prop, 0, "rna_Modifier_update");
+
+  prop = RNA_def_property(srna, "use_mirror_udim", PROP_BOOLEAN, PROP_NONE);
+  RNA_def_property_boolean_sdna(prop, NULL, "flag", MOD_MIR_MIRROR_UDIM);
+  RNA_def_property_ui_text(
+      prop, "Mirror UDIM", "Mirror the texture coordinate around each tile center");
   RNA_def_property_update(prop, 0, "rna_Modifier_update");
 
   prop = RNA_def_property(srna, "mirror_offset_u", PROP_FLOAT, PROP_FACTOR);
@@ -7035,6 +7029,29 @@ static void rna_def_modifier_weightednormal(BlenderRNA *brna)
   RNA_def_property_update(prop, 0, "rna_Modifier_update");
 }
 
+static void rna_def_modifier_simulation_access(BlenderRNA *brna)
+{
+  StructRNA *srna;
+  PropertyRNA *prop;
+
+  srna = RNA_def_struct(brna, "SimulationModifier", "Modifier");
+  RNA_def_struct_ui_text(srna, "Simulation Modifier", "");
+  RNA_def_struct_sdna(srna, "SimulationModifierData");
+  RNA_def_struct_ui_icon(srna, ICON_PHYSICS); /* TODO: Use correct icon. */
+
+#  ifdef WITH_NEW_SIMULATION_TYPE
+  prop = RNA_def_property(srna, "simulation", PROP_POINTER, PROP_NONE);
+  RNA_def_property_ui_text(prop, "Simulation", "Simulation to access");
+  RNA_def_property_flag(prop, PROP_EDITABLE);
+  RNA_def_property_update(prop, 0, "rna_Modifier_dependency_update");
+#  endif
+
+  prop = RNA_def_property(srna, "data_path", PROP_STRING, PROP_NONE);
+  RNA_def_property_ui_text(
+      prop, "Data Path", "Identifier of the simulation component that should be accessed");
+  RNA_def_property_update(prop, 0, "rna_Modifier_update");
+}
+
 void RNA_def_modifier(BlenderRNA *brna)
 {
   StructRNA *srna;
@@ -7161,6 +7178,7 @@ void RNA_def_modifier(BlenderRNA *brna)
   rna_def_modifier_meshseqcache(brna);
   rna_def_modifier_surfacedeform(brna);
   rna_def_modifier_weightednormal(brna);
+  rna_def_modifier_simulation_access(brna);
 }
 
 #endif

@@ -94,7 +94,8 @@ typedef enum ModifierType {
   eModifierType_WeightedNormal = 54,
   eModifierType_Weld = 55,
   eModifierType_Fluid = 56,
-  eModifierType_VoxelMesher = 57,
+  eModifierType_Simulation = 57,
+  eModifierType_VoxelMesher = 58,
   NUM_MODIFIER_TYPES,
 } ModifierType;
 
@@ -2250,6 +2251,13 @@ enum {
 
 #define MOD_MESHSEQ_READ_ALL \
   (MOD_MESHSEQ_READ_VERT | MOD_MESHSEQ_READ_POLY | MOD_MESHSEQ_READ_UV | MOD_MESHSEQ_READ_COLOR)
+
+typedef struct SimulationModifierData {
+  ModifierData modifier;
+
+  struct Simulation *simulation;
+  char data_path[64];
+} SimulationModifierData;
 
 #ifdef __cplusplus
 }

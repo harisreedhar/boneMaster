@@ -16,6 +16,9 @@
 
 /** \file
  * \ingroup edinterface
+ *
+ * Search available operators by scanning all and checking their poll function.
+ * accessed via the #WM_OT_search_operator operator.
  */
 
 #include <string.h>
@@ -43,13 +46,11 @@
 #include "UI_interface.h"
 #include "interface_intern.h"
 
-/* For key-map item access. */
-
 /* -------------------------------------------------------------------- */
 /** \name Operator Search Template Implementation
  * \{ */
 
-static void operator_call_cb(bContext *C, void *UNUSED(arg1), void *arg2)
+static void operator_search_exec_fn(bContext *C, void *UNUSED(arg1), void *arg2)
 {
   wmOperatorType *ot = arg2;
 
@@ -58,10 +59,10 @@ static void operator_call_cb(bContext *C, void *UNUSED(arg1), void *arg2)
   }
 }
 
-static void operator_search_cb(const bContext *C,
-                               void *UNUSED(arg),
-                               const char *str,
-                               uiSearchItems *items)
+static void operator_search_update_fn(const bContext *C,
+                                      void *UNUSED(arg),
+                                      const char *str,
+                                      uiSearchItems *items)
 {
   GHashIterator iter;
   const size_t str_len = strlen(str);
@@ -126,11 +127,10 @@ void UI_but_func_operator_search(uiBut *but)
 {
   UI_but_func_search_set(but,
                          ui_searchbox_create_operator,
-                         operator_search_cb,
+                         operator_search_update_fn,
                          NULL,
                          false,
-                         operator_call_cb,
-                         NULL,
+                         operator_search_exec_fn,
                          NULL);
 }
 
