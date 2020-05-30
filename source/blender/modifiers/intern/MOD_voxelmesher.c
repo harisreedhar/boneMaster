@@ -928,7 +928,7 @@ static Mesh *modifyMesh(ModifierData *md, const ModifierEvalContext *ctx, Mesh *
     struct OpenVDBLevelSet *level_set = NULL;
 
     Object *ob_orig = DEG_get_original_object(ctx->object);
-    VoxelMesherModifierData *vmd_orig = (VoxelMesherModifierData *)BKE_modifiers_findny_name(ob_orig,
+    VoxelMesherModifierData *vmd_orig = (VoxelMesherModifierData *)BKE_modifiers_findnby_name(ob_orig,
                                                                                         md->name);
 
     if (((vmd->flag & MOD_VOXELMESHER_LIVE_REMESH) == 0)) {
