@@ -1417,7 +1417,7 @@ typedef struct WeightVGEditModifierData {
 
 /* WeightVGEdit flags. */
 enum {
-  /* (1 << 0) is free for future use! */
+  MOD_WVG_EDIT_WEIGHTS_NORMALIZE = (1 << 0),
   MOD_WVG_INVERT_FALLOFF = (1 << 1),
   MOD_WVG_EDIT_INVERT_VGROUP_MASK = (1 << 2),
   /** Add vertices with higher weight than threshold to vgroup. */
@@ -1505,6 +1505,9 @@ enum {
 /* WeightVGMix->flag */
 enum {
   MOD_WVG_MIX_INVERT_VGROUP_MASK = (1 << 0),
+  MOD_WVG_MIX_WEIGHTS_NORMALIZE = (1 << 1),
+  MOD_WVG_MIX_INVERT_VGROUP_A = (1 << 2),
+  MOD_WVG_MIX_INVERT_VGROUP_B = (1 << 3),
 };
 
 typedef struct WeightVGProximityModifierData {
@@ -1567,6 +1570,7 @@ enum {
   MOD_WVG_PROXIMITY_GEOM_FACES = (1 << 2),
   MOD_WVG_PROXIMITY_INVERT_VGROUP_MASK = (1 << 3),
   MOD_WVG_PROXIMITY_INVERT_FALLOFF = (1 << 4),
+  MOD_WVG_PROXIMITY_WEIGHTS_NORMALIZE = (1 << 3),
 };
 
 /* Defines common to all WeightVG modifiers. */
