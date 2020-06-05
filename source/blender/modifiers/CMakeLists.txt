@@ -23,12 +23,15 @@ set(INC
   intern
   ../blenfont
   ../blenkernel
+  ../blentranslation
   ../blenlib
   ../bmesh
   ../depsgraph
+  ../editors/include
   ../makesdna
   ../makesrna
   ../render/extern/include
+  ../windowmanager
   ../../../intern/eigen
   ../../../intern/guardedalloc
 )
@@ -89,6 +92,7 @@ set(SRC
   intern/MOD_surface.c
   intern/MOD_surfacedeform.c
   intern/MOD_triangulate.c
+  intern/MOD_ui_common.c
   intern/MOD_util.c
   intern/MOD_uvproject.c
   intern/MOD_uvwarp.c
@@ -106,6 +110,7 @@ set(SRC
   MOD_modifiertypes.h
   intern/MOD_meshcache_util.h
   intern/MOD_solidify_util.h
+  intern/MOD_ui_common.h
   intern/MOD_util.h
   intern/MOD_weightvg_util.h
 )
@@ -158,6 +163,11 @@ if(WITH_INTERNATIONAL)
   add_definitions(-DWITH_INTERNATIONAL)
 endif()
 
+# To disable adaptive subdivision test in subsurf UI without cycles
+if(WITH_CYCLES)
+  add_definitions(-DWITH_CYCLES)
+endif()
+
 if(WITH_OPENVDB)
   list(APPEND INC
      ../../../intern/openvdb
@@ -168,7 +178,6 @@ if(WITH_OPENVDB)
   )
   add_definitions(-DWITH_OPENVDB ${OPENVDB_DEFINITIONS})
 endif()
-
 
 # So we can have special tricks in modifier system.
 add_definitions(${GL_DEFINITIONS})
