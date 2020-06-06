@@ -1835,7 +1835,7 @@ static void write_modifiers(BlendWriter *writer, ListBase *modbase)
       VoxelMesherModifierData *vmd = (VoxelMesherModifierData *)md;
       CSGVolume_Object *vcob;
       for (vcob = vmd->csg_operands.first; vcob; vcob = vcob->next) {
-        writestruct(wd, DATA, CSGVolume_Object, 1, vcob);
+        writestruct(writer->wd, DATA, CSGVolume_Object, 1, vcob);
       }
     }
     else if (md->type == eModifierType_Bevel) {
