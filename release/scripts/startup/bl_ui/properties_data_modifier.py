@@ -18,8 +18,32 @@
 
 # <pep8 compliant>
 import bpy
-from bpy.types import Panel
+from bpy.types import Panel, UIList
 from bpy.app.translations import pgettext_iface as iface_
+
+
+class VOXEL_MESHER_UL_csg(UIList):
+    def draw_item(self, _context, layout, _data, item, icon, _active_data_, _active_propname, _index):
+        # assert(isinstance(item, bpy.types.VertexGroup))
+        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+            row = layout.row(align=True)
+            layout.prop(item, "enabled", text="")
+
+            if _index == 0:
+                layout.label(text="Self Object")    
+            else:
+                sp = layout.split(factor=0.1, align=True)
+                sp.separator()
+                s = sp.split(factor=0.66, align=True)
+                s.prop(item, "object", text="")
+                s.prop(item, "operation", text="")
+
+            layout.prop(item, "input", text="")
+            
+
+        elif self.layout_type == 'GRID':
+            layout.alignment = 'CENTER'
+            layout.label(text="", icon_value=icon)
 
 
 class ModifierButtonsPanel:
@@ -39,6 +63,9 @@ class DATA_PT_modifiers(ModifierButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
+
+        ob = context.object
+
         layout.operator_menu_enum("object.modifier_add", "type")
         layout.template_modifiers()
 
@@ -540,6 +567,7 @@ class DATA_PT_gpencil_modifiers(ModifierButtonsPanel, Panel):
 
 
 classes = (
+    VOXEL_MESHER_UL_csg,
     DATA_PT_modifiers,
     DATA_PT_gpencil_modifiers,
 )
