@@ -28,15 +28,19 @@
 #include "BLI_memarena.h"
 #include "BLI_utildefines.h"
 
+#include "BLT_translation.h"
+
 #include "DNA_mesh_types.h"
 #include "DNA_meshdata_types.h"
 #include "DNA_modifier_types.h"
 #include "DNA_object_types.h"
 #include "DNA_particle_types.h"
 #include "DNA_scene_types.h"
+#include "DNA_screen_types.h"
 
 #include "MOD_modifiertypes.h"
 
+#include "BKE_context.h"
 #include "BKE_bvhutils.h"
 #include "BKE_data_transfer.h"
 #include "BKE_deform.h"
@@ -53,6 +57,15 @@
 #include "BKE_object.h"
 #include "BKE_remesh.h"
 #include "BKE_report.h"
+#include "BKE_screen.h"
+
+#include "UI_interface.h"
+#include "UI_resources.h"
+
+#include "RNA_access.h"
+
+#include "MOD_modifiertypes.h"
+#include "MOD_ui_common.h"
 
 #include "DEG_depsgraph_query.h"
 
@@ -67,6 +80,11 @@
 #ifdef WITH_OPENVDB
 #  include "openvdb_capi.h"
 #endif
+
+static void panel_draw(const bContext *C, Panel *panel)
+{
+
+}
 
 static void initData(ModifierData *md)
 {
@@ -254,7 +272,7 @@ static Mesh *repolygonize(
     n = get_particle_data(vmd, psys, ob, &pos, &size, &vel, &rot, &index, pardata);
     dm = BKE_mesh_new_nomain(n, 0, 0, 0, 0);
     mv = dm->mvert;
-    psize = CustomData_add_layer_named(&dm->vdata, CD_PROP_FLT, CD_CALLOC, NULL, n, "psize");
+    psize = CustomData_add_layer_named(&dm->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, n, "psize");
     orig_index = CustomData_add_layer(&dm->vdata, CD_ORIGINDEX, CD_CALLOC, NULL, n);
 
     for (i = 0; i < n; i++) {
@@ -306,7 +324,7 @@ static Mesh *repolygonize(
 
     dm = BKE_mesh_new_nomain(n + derived->totvert, 0, 0, 0, 0);
     psize = CustomData_add_layer_named(
-        &dm->vdata, CD_PROP_FLT, CD_CALLOC, NULL, n + derived->totvert, "psize");
+        &dm->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, n + derived->totvert, "psize");
 
     orig_index = CustomData_add_layer(
         &dm->vdata, CD_ORIGINDEX, CD_CALLOC, NULL, n + derived->totvert);
@@ -875,15 +893,15 @@ static void transfer_mblur_data(VoxelMesherModifierData *vmd,
   }
 
   // need the (empty) layers too, in case we dont use the particles (for cycles)
-  psize = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "psize");
-  velX = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "velX");
-  velY = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "velY");
-  velZ = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "velZ");
+  psize = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "psize");
+  velX = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "velX");
+  velY = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "velY");
+  velZ = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "velZ");
 
-  quatX = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "quatX");
-  quatY = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "quatY");
-  quatZ = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "quatZ");
-  quatW = CustomData_add_layer_named(&result->vdata, CD_PROP_FLT, CD_CALLOC, NULL, t, "quatW");
+  quatX = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "quatX");
+  quatY = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "quatY");
+  quatZ = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "quatZ");
+  quatW = CustomData_add_layer_named(&result->vdata, CD_PROP_FLOAT, CD_CALLOC, NULL, t, "quatW");
 
   if (psys) {
     pardata = BLI_memarena_new(BLI_MEMARENA_STD_BUFSIZE, "pardata");

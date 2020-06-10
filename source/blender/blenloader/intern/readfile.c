@@ -5879,7 +5879,7 @@ static void direct_link_modifiers(BlendDataReader *reader, ListBase *lb, Object 
     }
     else if (md->type == eModifierType_VoxelMesher) {
       VoxelMesherModifierData *vmd = (VoxelMesherModifierData *)md;
-      link_list(fd, &vmd->csg_operands);
+      BLO_read_list(reader, &vmd->csg_operands);
       vmd->mesh_cached = NULL;
       vmd->levelset_cached = NULL;
     }

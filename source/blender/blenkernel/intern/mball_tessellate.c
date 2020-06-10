@@ -1499,7 +1499,7 @@ static void init_meta_dm(PROCESS *process,
   unsigned int i;
   int totvert = dm->totvert, j;
   MVert *mvert = dm->mvert;
-  float *psize = CustomData_get_layer_named(&dm->vdata, CD_PROP_FLT, "psize");
+  float *psize = CustomData_get_layer_named(&dm->vdata, CD_PROP_FLOAT, "psize");
   MDeformVert *dvert = CustomData_get_layer(&dm->vdata, CD_MDEFORMVERT);
 
   unit_qt(quat);
